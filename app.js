@@ -1,55 +1,151 @@
 const https = require('https');
 let allArtists = [];
-// let artists_short = [];
-// let artists_medium = [];
-// let artists_long = [];
 
-const hitSpotify = (type, time_range, limit, offset) => {
+const hitSpotify = (type, time_range, limit) => {
 
-    this.type = type;
-    this.time_range = time_range;
-    this.limit = limit;
-    this.offset = offset;
+    let path = getPath(type, time_range, limit);
 
     const options = {
         "method": "GET",
         "hostname": "api.spotify.com",
-        "port": null,
-        "path": `/v1/me/top/${type}?time_range=${time_range}&limit=${limit}`,
+        "path": `${path}`,
         "headers": {
             "accept": "application/json",
             "content-type": "application/json",
-            "authorization": "Bearer BQD7LVJxMiHH2z-RnsgzGimDMsdOeStsq8O1K2oX-Iw-LSyf8IiInaCj8l-Ul_auAzi11PXgqjvSoJcCYPgFagmy7viUC9skMFGvvGtzcaxd0mWn9m18_xGz-5PvfgRqHorVdirWKAGu48Zk-KMr401322pl6ETtadmc3tzZJ2BGU0R2w7DeSGc8NCI_nc3xBFZKVuF3RFc1v2y6mUvxUBbhPGvoWkCr2ElFvbEmwnstj4vZ-YsqFLfhfDYejntkWRceJqSEdUVwU33yHaIMncx4yObGpvFg",
+            "authorization": "Bearer BQAwYHaXt_gKCoXVoeAZ0FYG79hHmz40fLEKwcaI5oh6mkBWXleSNaTnWtJdpEMnmAdvw7IK7NDPEZhz0s3SSf8EA2FoyOWHj61y2SKlY0OYpAzQU2H0AqlNDxqvDqXovfsDR3mEZxMVFOQClaG5EhGE8_XHYeKomyaFtlv3B-0axvjgTnInW9JwXPPHPAsPFdoV88-h2Fwa_MeKeLtzSUFfUpF5V5_XK4Mvv2fCFgHjye8p8fYfj5l1TurQmofCxbHH1XOylRKleznpxpyKvVr7Q_1BBj-t",
             "content-length": "0"
         }
     };
 
-    const req = https.get(options, res => {
-        let body = '';
-        res.on('data', data => {
-            body += data;
-        });
+    return new Promise((resolve, reject) => {
 
-        res.on('end', () => {
-            const artists = JSON.parse(body).items;
-            let counter = 0;
-            for (artist in artists) {
-                counter += 1;
-                // console.log(counter, artists[artist].artists[0].name, artists[artist].name);
-                // console.log(counter, artists[artist].name);
-                // console.log(counter, artists[artist].artists[0].name);
-                allArtists.push(artists[artist].artists[0].name)
-            }
-        });
+        try{
+
+            const req = https.get(options, res => {
+                let body = '';
+                res.on('data', data => {
+                    body += data;
+                });
+                
+                res.on('end', () => {
+                    let data = JSON.parse(body).items;
+                    resolve(data);
+                });
+            });
+        } catch(error){
+            reject(console.log('error'));
+            // throw error;
+        }
+            
     });
 }
 
-hitSpotify('tracks', 'short_term', '50', '0');
-hitSpotify('tracks', 'medium_term', '50', '0');
-hitSpotify('tracks', 'long_term', '50', '0');
+const getPath = (type, limit, time_range) => {
+    if (type === 'recent') {
+        return `/v1/me/player/recently-played?limit=${limit}`
+    } else if (type === 'artists') {
+        return `/v1/me/top/artists?time_range=${time_range}&limit=${limit}`
+    } else if (type === 'tracks') {
+        return `/v1/me/top/tracks?time_range=${time_range}&limit=${limit}`
+    }
+}
 
-setTimeout(()=> console.log(allArtists), 10000)
-// artists_short = hitSpotify('tracks', 'long_term', '50', '0');
-// artists_medium = hitSpotify('tracks', 'medium_term', '50', '0');
-// artists_long = hitSpotify('tracks', 'long_term', '50', '0');
-// let artists = artists_short.concat(artists_medium, artists_long);
+const recentTracksJSON = (songs) => {
+    let songsArray = [];
+
+    return new Promise((resolve, reject) => {
+
+        for (song in songs) {
+            let trackJSON = {
+                "id": songs[song].track.id,
+                "track": songs[song].track.name,
+                "artist": songs[song].track.artists[0].name,
+                "album": songs[song].track.album.name
+            }
+
+            songsArray.push(trackJSON);
+        }
+
+        resolve(songsArray);
+    });
+}
+
+const topTracksJSON = (songs) => {
+    let songsArray = [];
+
+    return new Promise((resolve, reject) => {
+
+        for (song in songs) {
+            let trackJSON = {
+                "id": songs[song].id,
+                "track": songs[song].name,
+                "artist": songs[song].artists[0].name,
+                "album": songs[song].album.name
+            }
+
+            songsArray.push(trackJSON);
+        }
+
+        resolve(songsArray);
+    });
+}
+
+const topArtistsJSON = (artists) => {
+    let artistsArray = [];
+
+    return new Promise((resolve, reject) => {
+
+        for (artist in artists) {
+            let artistsJSON = {
+                "artist": artists[artist].name,
+                "id": artists[artist].id
+            }
+
+            artistsArray.push(artistsJSON);
+        }
+
+        resolve(artistsArray);
+    });
+}
+
+const prom1 = new Promise((resolve, reject) => {
+    hitSpotify('tracks', 4, 'short_term')
+        .then((songs) => {
+            for (song in songs) {
+                topTracksJSON(songs)
+                    .then((json) => {
+                        resolve(allArtists.push(json));
+                    })
+            }
+        })
+        .catch(console.log('something went wront'));
+});
+
+const prom2 = new Promise((resolve, reject) => {
+    hitSpotify('artists', '2', 'long_term')
+        .then((artists) => {
+            topArtistsJSON(artists)
+                .then((json) => {
+                    resolve(allArtists.push(json));
+                })
+        })
+        .catch(console.log('something went wront'));
+});
+
+const prom3 = new Promise((resolve, reject) => {
+    hitSpotify('recent', 10)
+        .then((songs) => {
+            recentTracksJSON(songs)
+                .then((json) => {
+                    resolve(allArtists.push(json));
+                })
+        })
+        .catch(console.log('something went wront'));
+});
+
+
+Promise.all([prom1, prom2, prom3])
+    .then(function (values) {
+        console.log(allArtists);
+    })
+    .catch(console.log('something went wront'));
