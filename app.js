@@ -12,16 +12,14 @@ const hitSpotify = (type, time_range, limit) => {
         "headers": {
             "accept": "application/json",
             "content-type": "application/json",
-            "authorization": "Bearer BQAwYHaXt_gKCoXVoeAZ0FYG79hHmz40fLEKwcaI5oh6mkBWXleSNaTnWtJdpEMnmAdvw7IK7NDPEZhz0s3SSf8EA2FoyOWHj61y2SKlY0OYpAzQU2H0AqlNDxqvDqXovfsDR3mEZxMVFOQClaG5EhGE8_XHYeKomyaFtlv3B-0axvjgTnInW9JwXPPHPAsPFdoV88-h2Fwa_MeKeLtzSUFfUpF5V5_XK4Mvv2fCFgHjye8p8fYfj5l1TurQmofCxbHH1XOylRKleznpxpyKvVr7Q_1BBj-t",
+            "authorization": "Bearer BQDNNDrxJZXUf0gZS0VIIZb98fc-dN_6cCtLb6EnoDQ3ElWclKw_JRujULsui43YS4t8iOzVv_Ud7AZGnwcpwiU_Z1IB7vu9Gs_9Fke3RsvvwQIGYC_DiGiXG0-V6lKCZeJFbDwo8ppQ7ajTGStGV8OSIG111CvikrsR-8uBTpY_rYJ47hk2oonx9TkNRLChiwRYjMjyNxgtnyRu0-GMvY2DQDjm4mbC1pDFy_VW0p3EEiMdbGQRZGb7nQewv6bfJKjny_STCcYANlHJ7x40qu-mFAqCRo8P",
             "content-length": "0"
         }
     };
 
     return new Promise((resolve, reject) => {
-
         try{
-
-            const req = https.get(options, res => {
+            https.get(options, res => {
                 let body = '';
                 res.on('data', data => {
                     body += data;
@@ -32,9 +30,9 @@ const hitSpotify = (type, time_range, limit) => {
                     resolve(data);
                 });
             });
-        } catch(error){
-            reject(console.log('error'));
-            // throw error;
+        } catch(error) {
+            // reject(error.errno);
+            throw error;
         }
             
     });
@@ -118,7 +116,10 @@ const prom1 = new Promise((resolve, reject) => {
                     })
             }
         })
-        .catch(console.log('something went wront'));
+        .catch((err) => {
+            console.log('here I am')
+            reject(err)
+        });
 });
 
 const prom2 = new Promise((resolve, reject) => {
@@ -129,7 +130,7 @@ const prom2 = new Promise((resolve, reject) => {
                     resolve(allArtists.push(json));
                 })
         })
-        .catch(console.log('something went wront'));
+        .catch(err => reject('err'));
 });
 
 const prom3 = new Promise((resolve, reject) => {
@@ -140,7 +141,7 @@ const prom3 = new Promise((resolve, reject) => {
                     resolve(allArtists.push(json));
                 })
         })
-        .catch(console.log('something went wront'));
+        .catch(err => reject('err'));
 });
 
 
@@ -148,4 +149,4 @@ Promise.all([prom1, prom2, prom3])
     .then(function (values) {
         console.log(allArtists);
     })
-    .catch(console.log('something went wront'));
+    .catch(err => console.log(err));
