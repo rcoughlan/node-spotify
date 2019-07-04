@@ -7,19 +7,18 @@ const hitSpotify = (type, time_range, limit) => {
 
     const options = {
         "method": "GET",
-        "hostname": "api.spotify.com",
+        "hostname": "api.spotfy.com",
         "path": `${path}`,
         "headers": {
             "accept": "application/json",
             "content-type": "application/json",
-            "authorization": "Bearer BQDNNDrxJZXUf0gZS0VIIZb98fc-dN_6cCtLb6EnoDQ3ElWclKw_JRujULsui43YS4t8iOzVv_Ud7AZGnwcpwiU_Z1IB7vu9Gs_9Fke3RsvvwQIGYC_DiGiXG0-V6lKCZeJFbDwo8ppQ7ajTGStGV8OSIG111CvikrsR-8uBTpY_rYJ47hk2oonx9TkNRLChiwRYjMjyNxgtnyRu0-GMvY2DQDjm4mbC1pDFy_VW0p3EEiMdbGQRZGb7nQewv6bfJKjny_STCcYANlHJ7x40qu-mFAqCRo8P",
+            "authorization": "Bearer BQDKBNCeU9wrbP7dgM_d1aIoZyCPvGpt6MZO170BDou1y6bjkFrCbNA5juKdlsb8317gWKVs3LWy3piKywwCdDIFP4Zs477MPX4p82STf_m7zhDV-KOLct21y0WKQ_0lh3-1tHhQHTVzXoCqxKrgbgA6bt9VQON9I93Efc4Og88C1QQnurI_9J7TSNriY_Rq-HOdo2M9mhfX0rB0HhdLLMLlXyb0EgXPlq0XQ5NOLszFxx4Ka7P0TwUre49RhH0T14GxL5NncscOVimanyK5SsJIOOG4aA5y",
             "content-length": "0"
         }
     };
 
     return new Promise((resolve, reject) => {
-        try{
-            https.get(options, res => {
+            let req = https.request(options, res => {
                 let body = '';
                 res.on('data', data => {
                     body += data;
@@ -30,11 +29,13 @@ const hitSpotify = (type, time_range, limit) => {
                     resolve(data);
                 });
             });
-        } catch(error) {
-            // reject(error.errno);
-            throw error;
-        }
             
+            req.on('error', (err) => {
+                console.log(err.errno);
+                // console.log(err);
+            })
+
+            req.end();
     });
 }
 
@@ -148,5 +149,6 @@ const prom3 = new Promise((resolve, reject) => {
 Promise.all([prom1, prom2, prom3])
     .then(function (values) {
         console.log(allArtists);
+        // console.log(allArtists.length);
     })
     .catch(err => console.log(err));
