@@ -7,12 +7,12 @@ const hitSpotify = (type, time_range, limit) => {
 
     const options = {
         "method": "GET",
-        "hostname": "api.spotfy.com",
+        "hostname": "api.spify.com",
         "path": `${path}`,
         "headers": {
             "accept": "application/json",
             "content-type": "application/json",
-            "authorization": "Bearer BQDKBNCeU9wrbP7dgM_d1aIoZyCPvGpt6MZO170BDou1y6bjkFrCbNA5juKdlsb8317gWKVs3LWy3piKywwCdDIFP4Zs477MPX4p82STf_m7zhDV-KOLct21y0WKQ_0lh3-1tHhQHTVzXoCqxKrgbgA6bt9VQON9I93Efc4Og88C1QQnurI_9J7TSNriY_Rq-HOdo2M9mhfX0rB0HhdLLMLlXyb0EgXPlq0XQ5NOLszFxx4Ka7P0TwUre49RhH0T14GxL5NncscOVimanyK5SsJIOOG4aA5y",
+            "authorization": "Bearer BQCGWDDik70rr6vwLboaDuE-PORaxhLIJlRYEVZ5b_k6Hl8hS0Vxdx-2Qu09HbQN6hojYGSKC64tpTDrrmXCij1B-rzg7f1YSZihcDqDWsC1rzw8gVUescjQgpQe6fOXwiFBtvhvrK5ecQoX2u-i3L2GZqbc8PQp1Lva-_vkFqUgyJq23ZKQVvL6-5mD2wwa0Dcqj-iHkqKJ6PGSRIq6BidzuH_K6USC0C_GDc4GJn-MoQ7qSowhbEh9rRkxsnoEh2TPuDGiuAFT-_a1BC8jU0RDzza95yuo",
             "content-length": "0"
         }
     };
@@ -31,8 +31,10 @@ const hitSpotify = (type, time_range, limit) => {
             });
             
             req.on('error', (err) => {
-                console.log(err.errno);
-                // console.log(err);
+                let errMessage = getError(err)
+                // console.error(errMessage);
+                throw errMessage;
+                reject(errMessage);
             })
 
             req.end();
@@ -107,6 +109,11 @@ const topArtistsJSON = (artists) => {
     });
 }
 
+const getError = (err) => {
+    let errMessage = new Error(`sorry, something went wrong with the host ${err.host}. ${err.reason}`);
+    return errMessage;
+}
+
 const prom1 = new Promise((resolve, reject) => {
     hitSpotify('tracks', 4, 'short_term')
         .then((songs) => {
@@ -151,4 +158,4 @@ Promise.all([prom1, prom2, prom3])
         console.log(allArtists);
         // console.log(allArtists.length);
     })
-    .catch(err => console.log(err));
+    .catch(err => console.log(' something hereerr'));
