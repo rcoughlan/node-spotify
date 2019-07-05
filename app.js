@@ -1,5 +1,6 @@
 const https = require('https');
 let allArtists = [];
+let token = process.argv.slice(2);
 
 const hitSpotify = (type, time_range, limit) => {
 
@@ -7,37 +8,37 @@ const hitSpotify = (type, time_range, limit) => {
 
     const options = {
         "method": "GET",
-        "hostname": "api.spify.com",
+        "hostname": "api.spotify.com",
         "path": `${path}`,
         "headers": {
             "accept": "application/json",
             "content-type": "application/json",
-            "authorization": "Bearer BQCGWDDik70rr6vwLboaDuE-PORaxhLIJlRYEVZ5b_k6Hl8hS0Vxdx-2Qu09HbQN6hojYGSKC64tpTDrrmXCij1B-rzg7f1YSZihcDqDWsC1rzw8gVUescjQgpQe6fOXwiFBtvhvrK5ecQoX2u-i3L2GZqbc8PQp1Lva-_vkFqUgyJq23ZKQVvL6-5mD2wwa0Dcqj-iHkqKJ6PGSRIq6BidzuH_K6USC0C_GDc4GJn-MoQ7qSowhbEh9rRkxsnoEh2TPuDGiuAFT-_a1BC8jU0RDzza95yuo",
+            "authorization": `Bearer ${token}`,
             "content-length": "0"
         }
     };
 
     return new Promise((resolve, reject) => {
-            let req = https.request(options, res => {
-                let body = '';
-                res.on('data', data => {
-                    body += data;
-                });
-                
-                res.on('end', () => {
-                    let data = JSON.parse(body).items;
-                    resolve(data);
-                });
+        let req = https.request(options, res => {
+            let body = '';
+            res.on('data', data => {
+                body += data;
             });
-            
-            req.on('error', (err) => {
-                let errMessage = getError(err)
-                // console.error(errMessage);
-                throw errMessage;
-                reject(errMessage);
-            })
 
-            req.end();
+            res.on('end', () => {
+                let data = JSON.parse(body).items;
+                resolve(data);
+            });
+        });
+
+        req.on('error', (err) => {
+            let errMessage = getError(err)
+            // console.error(errMessage);
+            throw errMessage;
+            reject(errMessage);
+        })
+
+        req.end();
     });
 }
 
@@ -114,15 +115,13 @@ const getError = (err) => {
     return errMessage;
 }
 
-const prom1 = new Promise((resolve, reject) => {
+const topTracks = new Promise((resolve, reject) => {
     hitSpotify('tracks', 4, 'short_term')
         .then((songs) => {
-            for (song in songs) {
-                topTracksJSON(songs)
-                    .then((json) => {
-                        resolve(allArtists.push(json));
-                    })
-            }
+            topTracksJSON(songs)
+                .then((json) => {
+                    resolve(allArtists.push(json));
+                })
         })
         .catch((err) => {
             console.log('here I am')
@@ -130,7 +129,7 @@ const prom1 = new Promise((resolve, reject) => {
         });
 });
 
-const prom2 = new Promise((resolve, reject) => {
+const topArtists = new Promise((resolve, reject) => {
     hitSpotify('artists', '2', 'long_term')
         .then((artists) => {
             topArtistsJSON(artists)
@@ -141,7 +140,7 @@ const prom2 = new Promise((resolve, reject) => {
         .catch(err => reject('err'));
 });
 
-const prom3 = new Promise((resolve, reject) => {
+const recentTracks = new Promise((resolve, reject) => {
     hitSpotify('recent', 10)
         .then((songs) => {
             recentTracksJSON(songs)
@@ -153,9 +152,8 @@ const prom3 = new Promise((resolve, reject) => {
 });
 
 
-Promise.all([prom1, prom2, prom3])
+Promise.all([topTracks, topArtists, recentTracks])
     .then(function (values) {
         console.log(allArtists);
-        // console.log(allArtists.length);
     })
     .catch(err => console.log(' something hereerr'));
