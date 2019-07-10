@@ -17,7 +17,7 @@ const topTracks = new Promise((resolve, reject) => {
 });
 
 const topArtists = new Promise((resolve, reject) => {
-    hitSpotify('artists', '2', 'long_term')
+    hitSpotify('artists', 2, 'long_term')
         .then((artists) => {
             format.topArtists(artists)
                 .then((json) => {
@@ -28,7 +28,7 @@ const topArtists = new Promise((resolve, reject) => {
 });
 
 const recentTracks = new Promise((resolve, reject) => {
-    hitSpotify('recent', 10)
+    hitSpotify('recent', 2)
         .then((songs) => {
             format.recentTracks(songs)
                 .then((json) => {
