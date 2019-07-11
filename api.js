@@ -1,7 +1,7 @@
 const https = require('https');
 let token = process.argv.slice(2);
 
-module.exports = (type, time_range, limit) => {
+const hitSpotify = (type, time_range, limit) => {
 
     let path = getPath(type, time_range, limit);
 
@@ -31,10 +31,9 @@ module.exports = (type, time_range, limit) => {
         });
 
         req.on('error', (err) => {
-            let errMessage = getError(err)
-            // console.error(errMessage);
-            throw errMessage;
+            let errMessage = getError(err);
             reject(errMessage);
+            throw errMessage;
         })
 
         req.end();
@@ -55,3 +54,5 @@ const getError = (err) => {
     let errMessage = new Error(`sorry, something went wrong with the host ${err.host}. ${err.reason}`);
     return errMessage;
 }
+
+module.exports = { hitSpotify, getPath, getError }

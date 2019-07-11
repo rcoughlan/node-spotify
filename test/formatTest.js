@@ -53,8 +53,8 @@ describe('Format', () => {
             assert.notDeepEqual(result, topArtists);
             assert.typeOf(result, 'array');
             done();
-        })
-    })
+        });
+    });
     
     it('should use the topTracks function to return a valid redacted array of json objects', (done) => {
         format.topTracks(topTracks).then((result) => {
@@ -62,8 +62,8 @@ describe('Format', () => {
             assert.notDeepEqual(result, topTracks);
             assert.typeOf(result, 'array');
             done();
-        })
-    })
+        });
+    });
     
     it('should use the recentTracks function to return a valid redacted array of json objects', (done) => {
         format.recentTracks(recentTracks).then((result) => {
@@ -71,6 +71,6 @@ describe('Format', () => {
             assert.notDeepEqual(result, recentTracks);
             assert.typeOf(result, 'array');
             done();
-        })
-    })
-})
+        });
+    });
+});
